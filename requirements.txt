@@ -6,3 +6,5 @@ python-dotenv<=1.0.1
 msrest<=0.7.1
 pillow-heif
 
+inference 
+inference-cli
