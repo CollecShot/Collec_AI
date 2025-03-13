@@ -115,21 +115,21 @@ def classifify_tag(tags_str: str) -> str:
 
     
     if contains_keyword(tags_lower, shop_keywords):
-        return "shop"
+        return "쇼핑&구매"
     elif contains_keyword(tags_lower, place_keywords):
-        return "place"
+        return "장소"
     elif contains_keyword(tags_lower, animal_keywords):
-        return "animal"
+        return "동물"
     elif contains_keyword(tags_lower, people_keywords):
-        return "people"
+        return "사람&인물"
     else:
-        return "other"
+        return "기타"
 
     
     
 
 
-def get_tags_from_azure(input_folder, csv_path):
+def get_tags_from_azure(input_img, csv_path):
     """
     이미지 폴더 경로를 입력받아, Azure Computer Vision API로 태깅한 뒤
     결과를 CSV 파일로 저장하고, 결과 리스트를 반환한다.
@@ -138,31 +138,28 @@ def get_tags_from_azure(input_folder, csv_path):
 
     results = []
     
-    for input_file in os.listdir(input_folder):
-        if not input_file.lower().endswith((".jpg", ".jpeg", ".png",".PNG", ".heic", ".heif", ".webp")):
-            print(f"⚠️ 건너뜀: {input_file} (지원되지 않는 파일)")
-            continue
+    if not input_img.lower().endswith((".jpg", ".jpeg", ".png",".PNG", ".heic", ".heif", ".webp")):
+        print(f"⚠️ 건너뜀: {input_img} (지원되지 않는 파일)")
     
-        compressed_path = compress_image(os.path.join(input_folder, input_file))
-        input_path=os.path.join(input_folder, input_file)
+    compressed_path = compress_image(input_img)
 
-        with open(compressed_path, "rb") as local_image:
-            tags_result = client.tag_image_in_stream(local_image)
+    with open(compressed_path, "rb") as local_image:
+        tags_result = client.tag_image_in_stream(local_image)
             
 
-        if len(tags_result.tags) == 0:
-            tags_str = "No tags detected."
-        else:
-            tags_str = ", ".join(
-                f"'{tag.name}' with confidence {tag.confidence*100:.2f}%"
-                for tag in tags_result.tags
-            )
-            print(f"📍{input_file} : tags_result",tags_str)
-            category=classifify_tag(tags_str)
-            print(f"💡{category}")
+    if len(tags_result.tags) == 0:
+        tags_str = "No tags detected."
+    else:
+        tags_str = ", ".join(
+            f"'{tag.name}' with confidence {tag.confidence*100:.2f}%"
+            for tag in tags_result.tags
+        )
+        print(f"📍{compressed_path} : tags_result",tags_str)
+        category=classifify_tag(tags_str)
+        print(f"💡{category}")
 
 
-        results.append([compressed_path, tags_str, category])
+    results.append([compressed_path, tags_str, category])
 
 
     # CSV로 저장
@@ -171,4 +168,4 @@ def get_tags_from_azure(input_folder, csv_path):
         writer.writerow(["File dir", "Tags","Category"])
         writer.writerows(results)
 
-    return compressed_folder, results
+    return compressed_path, results

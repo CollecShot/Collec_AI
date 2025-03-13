@@ -16,14 +16,13 @@ output_folder = f"./results/results_ocr/ocr_{today_str}/"
 
 os.makedirs(output_folder, exist_ok=True)
 
-def detect_text(input_file, input_folder):
+def detect_text(img_path):
     """
     Detects text in the file
     """
     client = vision.ImageAnnotatorClient()
 
-    path = os.path.join(input_folder, input_file)
-    with open(path, "rb") as image_file:
+    with open(img_path, "rb") as image_file:
         content = image_file.read()
 
     image = vision.Image(content=content)
@@ -104,7 +103,7 @@ def classify_text(text, threshold = 800):
     return "기타"
 
     
-def OCR_main(input_folder: str):
+def OCR_main(img_path: str):
 
     # input_folder = "/Users/jiyoonjeon/projects/Collec_AI/dataset/OCRTestImgs"
     # output_folder = "/Users/jiyoonjeon/projects/Collec_AI/results/results_ocr"
@@ -112,23 +111,22 @@ def OCR_main(input_folder: str):
     results = {}
 
 
-    for input_file in os.listdir(input_folder):
-        text_info = detect_text(input_file, input_folder)
-        extracted_text = extract_text(text_info)
+    text_info = detect_text(img_path)
+    extracted_text = extract_text(text_info)
 
         
-        category = classify_text(extracted_text)
-        # save result in dict
-        results[input_file] ={
+    category = classify_text(extracted_text)
+    # save result in dict
+    results[img_path] ={
             "text" : extracted_text,
             "category" : category
-        }
+    }
 
         # save result in txt file
-        output_file = os.path.join(output_folder,f"{os.path.splitext(input_file)[0]}.txt")
-        with open (output_file, "w", encoding = "utf-8") as f:
-                f.write(f"{category}\n\n{extracted_text}")
-        print(f"✅ {input_file} - 텍스트 감지 완료")
+    output_file = os.path.join(output_folder,f"{os.path.splitext(img_path)[0]}.txt")
+    with open (output_file, "w", encoding = "utf-8") as f:
+            f.write(f"{category}\n\n{extracted_text}")
+    print(f"✅ {img_path} - 텍스트 감지 완료")
 
 
     print("OCR 작성 완료!")     

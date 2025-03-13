@@ -1,0 +1,2 @@
+FilePath,AzureTags,AzureCategory,RoboflowCategory,OCRText,OCRCategory,FinalCategory
+./dataset/RoboflowTestImgs/compressed/compressed_20250313/0_compressed.jpg,"'text' with confidence 99.85%, 'screenshot' with confidence 96.80%, 'software' with confidence 87.61%, 'operating system' with confidence 84.67%",기타타,대화 & 메시지,,,대화 & 메시지
