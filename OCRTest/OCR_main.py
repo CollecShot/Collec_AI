@@ -4,9 +4,17 @@ import re
 import numpy as np
 from google.cloud import vision
 from PIL import Image, ImageDraw
+import argparse
+import datetime
 
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="./wise-alpha-451006-r6-ffa3465ce044.json"
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="/Users/jiyoonjeon/projects/Collec_AI/wise-alpha-451006-r6-ffa3465ce044.json"
+#날짜 기준으로 폴더 생성(코드를 하루에 한 번만 돌린다고 가정)
+today_str = datetime.datetime.now().strftime("%Y%m%d")
+
+output_folder = f"./results/results_ocr/ocr_{today_str}/"
+
+os.makedirs(output_folder, exist_ok=True)
 
 def detect_text(input_file, input_folder):
     """
@@ -16,6 +24,26 @@ def detect_text(input_file, input_folder):
 
     path = os.path.join(input_folder, input_file)
     with open(path, "rb") as image_file:
+        content = image_file.read()
+
+    image = vision.Image(content=content)
+    response = client.text_detection(image=image)
+
+    response = client.text_detection(image=image)
+    texts = response.text_annotations
+    print("Texts:")
+
+    if response.error.message:
+        raise Exception(
+            "{}\nFor more info on error messages, check: "
+            "https://cloud.google.com/apis/design/errors".format(response.error.message)
+        )
+    return texts
+
+def detect_text_inImage(img_path):
+    client = vision.ImageAnnotatorClient()
+
+    with open(img_path, "rb") as image_file:
         content = image_file.read()
 
     image = vision.Image(content=content)
@@ -76,9 +104,10 @@ def classify_text(text, threshold = 800):
     return "기타"
 
     
-def main():
-    input_folder = "/Users/jiyoonjeon/projects/Collec_AI/dataset/OCRTestImgs"
-    output_folder = "/Users/jiyoonjeon/projects/Collec_AI/results/results_ocr"
+def OCR_main(input_folder: str):
+
+    # input_folder = "/Users/jiyoonjeon/projects/Collec_AI/dataset/OCRTestImgs"
+    # output_folder = "/Users/jiyoonjeon/projects/Collec_AI/results/results_ocr"
 
     results = {}
 
@@ -87,6 +116,7 @@ def main():
         text_info = detect_text(input_file, input_folder)
         extracted_text = extract_text(text_info)
         print(f"🚨{input_file}->{len(extracted_text)}")
+        
         category = classify_text(extracted_text)
         # save result in dict
         results[input_file] ={
@@ -99,12 +129,21 @@ def main():
         with open (output_file, "w", encoding = "utf-8") as f:
                 f.write(f"{category}\n\n{extracted_text}")
         print(f"✅ {input_file} - 텍스트 감지 완료")
-         
+
+
+    print("OCR 작성 완료!")     
     return results
 
 
+
+
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="OCR")
+    parser.add_argument("--input_folder", type=str, default=".", help="이미지 경로")
+
+    args = parser.parse_args()
+
+    OCR_main(args.img_path)
     
 
 

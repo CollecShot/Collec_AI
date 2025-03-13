@@ -3,6 +3,7 @@ from ui_detect import ui_detection
 
 import os
 from dotenv import load_dotenv
+import argparse
 
 
 load_dotenv()
@@ -26,8 +27,10 @@ def categorize_image(ui_classes):
     return "기타"
 
 
-def main():
-    img_folder = "/Users/jiyoonjeon/projects/Collec_AI/dataset/RoboflowTestImgs"
+def roboflow_main(img_folder: str):
+
+
+    # img_folder = "/Users/jiyoonjeon/projects/Collec_AI/dataset/RoboflowTestImgs"
     img_files = []
 
     for f in os.listdir(img_folder):
@@ -48,9 +51,15 @@ def main():
         
         ui_classes = {prediction["class"] for prediction in ui_result.get("predictions", [])}
         category = categorize_image(ui_classes)
-        results[file_name]=category
-        print(f"✅ {file_name} - UI Detect 결과: {ui_classes}, 분류된 카테고리: {category}")
+        results[img_path]=category
+        print(f"✅ {img_path} - UI Detect 결과: {ui_classes}, 분류된 카테고리: {category}")
 
-    print(results)
+        #dictionary형태의 result 반환. img_path: category
+        return results
+
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Roboflow UI Detection")
+    parser.add_argument("--img_folder", type=str, default=".", help="이미지 폴더 경로")
+    args = parser.parse_args()
+
+    roboflow_main(args.img_folder)

@@ -7,9 +7,18 @@ from azure.cognitiveservices.vision.computervision.models import VisualFeatureTy
 from msrest.authentication import CognitiveServicesCredentials
 import os
 from dotenv import load_dotenv
+import datetime 
 
 # .env 파일 로딩
 load_dotenv()
+
+#날짜 기준으로 폴더 생성(코드를 하루에 한 번만 돌린다고 가정)
+today_str = datetime.datetime.now().strftime("%Y%m%d")
+
+
+compressed_folder = f"./dataset/RoboflowTestImgs/compressed/compressed_{today_str}/"
+
+os.makedirs(compressed_folder, exist_ok=True)
 
 def azure_authenticate():
 
@@ -21,7 +30,28 @@ def azure_authenticate():
 
 def compress_image(input_file: str, max_dimension=1024, quality=80) -> str:
     file_name =  os.path.basename(input_file) 
-    output_path = os.path.join("/Users/jiyoonjeon/projects/Collec_AI/dataset/AzureTestImgs/compressed/orig0", f"{os.path.splitext(file_name)[0]}_compressed.jpg")
+
+    """
+    compress folder를 지정해줘야되나? 
+    파이프라인을 돌릴 때, 시간 순으로 compress_folder를 만들어. 
+    azure, roboflow, ocr이 이 폴더 내 imgs를 기반으로 돌아가.. 
+    그럼?
+    자동화 파이프라인을 어케 만들지? 
+    백에서 요청을 할 때 파이프라인이 동작. 
+    폴더를 요청한다고 치면 -> 이게 input folder고,
+    이 input_folder를 전처리해서 output folder에 들어가는건데, 그럼 경로 설정을 어케하지.
+    음 . . . result폴더에 시간 기준으로 폴더명 만들기? 
+
+    1. BE-> AI에 요청 시, 폴더를 요청한다고 쳐.
+    2. result 폴더에 전처리 폴더 생성 ex)"compress_250313" 이런 식으로. 
+       -> 이걸 폴더에 받아서 써. 그럼 이 함수에서는 compress폴더 경로만 추가하면 됨.
+
+
+    """
+
+    output_path = os.path.join(compressed_folder, f"{os.path.splitext(file_name)[0]}_compressed.jpg")
+    
+    # output_path = os.path.join("/Users/jiyoonjeon/projects/Collec_AI/dataset/AzureTestImgs/compressed/orig0", f"{os.path.splitext(file_name)[0]}_compressed.jpg")
 
     with Image.open(input_file) as img:
         if img.width > max_dimension or img.height > max_dimension:
@@ -36,7 +66,6 @@ def classifify_tag(tags_str: str) -> str:
     """
     result가 아래 태그에 해당하면 해당 카테고리로 분류
     """
-    #Shop
     shop_keywords = [
         "accessory", "bag", "clothing", "fashion", "fashion accessory",
         "luggage and bags", "design", "fashion design", "dress", 
@@ -108,13 +137,13 @@ def get_tags_from_azure(input_folder, csv_path):
             category=classifify_tag(tags_str)
 
 
-        results.append([input_file, tags_str, category])
+        results.append([compressed_path, tags_str, category])
 
 
     # CSV로 저장
     with open(csv_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(["File Name", "Tags","Category"])
+        writer.writerow(["File dir", "Tags","Category"])
         writer.writerows(results)
 
-    return results
+    return compressed_folder, results

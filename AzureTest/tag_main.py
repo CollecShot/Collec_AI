@@ -3,18 +3,31 @@ from tag import get_tags_from_azure
 
 import os
 from dotenv import load_dotenv
+import argparse
 
 # .env 파일 로딩
 load_dotenv()
 
+"""
+코드 돌릴 때 이런 식으로 쓰기!
+python my_script.py --img_folder /Users/jiyoonjeon/projects/Collec_AI/dataset/RoboflowTestImgs
+"""
 
-def main():
-    input_folder = "/Users/jiyoonjeon/projects/Collec_AI/dataset/AzureTestImgs/orig0"
-    csv_path = "/Users/jiyoonjeon/projects/Collec_AI/results/results_csv/result3.csv"
 
-    azure_results = get_tags_from_azure(input_folder, csv_path)
+def tag_main(input_folder: str, output_csv: str):
+
+
+    print(f"input 이미지 폴더 경로는 {input_folder}, output csv 경로는 {output_csv} 입니다.")
+    azure_results = get_tags_from_azure(input_folder, output_csv)
     
+
     print("✅ azure 분석 완료!!")
+    return azure_results
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Azure Tagging Script")
+    parser.add_argument("--img_folder", type=str, required=True, help="이미지 폴더 경로")
+    parser.add_argument("--output_csv", type=str, default="./results/results_csv/temp_azure.csv", help="결과 CSV 파일명")
+    args = parser.parse_args()
+    
+    tag_main(args.img_folder, args.output_csv)
