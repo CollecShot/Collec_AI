@@ -123,7 +123,8 @@ def OCR_main(img_path: str):
     }
 
         # save result in txt file
-    output_file = os.path.join(output_folder,f"{os.path.splitext(img_path)[0]}.txt")
+    output_file = os.path.join(output_folder, f"{os.path.splitext(os.path.basename(img_path))[0]}.txt")
+    
     with open (output_file, "w", encoding = "utf-8") as f:
             f.write(f"{category}\n\n{extracted_text}")
     print(f"✅ {img_path} - 텍스트 감지 완료")

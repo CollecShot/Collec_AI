@@ -17,7 +17,7 @@ load_dotenv()
 today_str = datetime.datetime.now().strftime("%Y%m%d")
 
 
-compressed_folder = f"./dataset/RoboflowTestImgs/compressed/compressed_{today_str}/"
+compressed_folder = f"./dataset/compressed/compressed_{today_str}/"
 
 os.makedirs(compressed_folder, exist_ok=True)
 
