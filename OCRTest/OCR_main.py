@@ -115,7 +115,7 @@ def OCR_main(input_folder: str):
     for input_file in os.listdir(input_folder):
         text_info = detect_text(input_file, input_folder)
         extracted_text = extract_text(text_info)
-        print(f"🚨{input_file}->{len(extracted_text)}")
+
         
         category = classify_text(extracted_text)
         # save result in dict

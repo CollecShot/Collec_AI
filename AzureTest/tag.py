@@ -8,6 +8,7 @@ from msrest.authentication import CognitiveServicesCredentials
 import os
 from dotenv import load_dotenv
 import datetime 
+import re
 
 # .env 파일 로딩
 load_dotenv()
@@ -61,6 +62,14 @@ def compress_image(input_file: str, max_dimension=1024, quality=80) -> str:
     return output_path
     
 
+def contains_keyword(tags_lower, keywords):
+    for keyword in keywords:
+        # 정규 표현식: 단어 경계(\b)를 활용하여 정확한 단어 매칭
+        if re.search(r'\b' + re.escape(keyword) + r'\b', tags_lower):
+            print(f"🔍 Found match: {keyword}")
+            return True
+    return False
+
 
 def classifify_tag(tags_str: str) -> str:
     """
@@ -68,7 +77,7 @@ def classifify_tag(tags_str: str) -> str:
     """
     shop_keywords = [
         "accessory", "bag", "clothing", "fashion", "fashion accessory",
-        "luggage and bags", "design", "fashion design", "dress", 
+        "luggage and bags", "fashion design", "dress", 
         "cosmetics", "footwear", "furniture", "online advertising"
     ]
     place_keywords= [
@@ -90,21 +99,34 @@ def classifify_tag(tags_str: str) -> str:
     ]
 
     tags_lower = tags_str.lower()
+    print(f"➡️{tags_lower}")
 
-    # keywords 리스트 중 하나라도 포함되면 True
-    if any(keyword in tags_lower for keyword in shop_keywords):
+    # # keywords 리스트 중 하나라도 포함되면 True
+    # if any(keyword in tags_lower for keyword in shop_keywords):
+    #     return "shop"
+    # elif any(keyword in tags_lower for keyword in place_keywords):
+    #     return "place"
+    # elif any(keyword in tags_lower for keyword in animal_keywords):
+    #     return "animal"
+    # elif any(keyword in tags_lower for keyword in people_keywords):
+    #     return "people"
+    # else:
+    #     return "other"
+
+    
+    if contains_keyword(tags_lower, shop_keywords):
         return "shop"
-    elif any(keyword in tags_lower for keyword in place_keywords):
+    elif contains_keyword(tags_lower, place_keywords):
         return "place"
-    elif any(keyword in tags_lower for keyword in animal_keywords):
+    elif contains_keyword(tags_lower, animal_keywords):
         return "animal"
-    elif any(keyword in tags_lower for keyword in people_keywords):
+    elif contains_keyword(tags_lower, people_keywords):
         return "people"
     else:
-        return"other"
+        return "other"
 
-
-  
+    
+    
 
 
 def get_tags_from_azure(input_folder, csv_path):
@@ -126,6 +148,7 @@ def get_tags_from_azure(input_folder, csv_path):
 
         with open(compressed_path, "rb") as local_image:
             tags_result = client.tag_image_in_stream(local_image)
+            
 
         if len(tags_result.tags) == 0:
             tags_str = "No tags detected."
@@ -134,7 +157,9 @@ def get_tags_from_azure(input_folder, csv_path):
                 f"'{tag.name}' with confidence {tag.confidence*100:.2f}%"
                 for tag in tags_result.tags
             )
+            print(f"📍{input_file} : tags_result",tags_str)
             category=classifify_tag(tags_str)
+            print(f"💡{category}")
 
 
         results.append([compressed_path, tags_str, category])

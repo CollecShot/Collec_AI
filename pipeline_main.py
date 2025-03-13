@@ -30,8 +30,7 @@ def pipeline_main(img_folder: str, output_csv: str):
     # => 이때 compressed_path = "/어쩌구/.../XXX_compressed.jpg" 이런 식.
     # => 우리는 "원본 파일이름"과 매칭해야 편하므로, basename()을 써서 data_dict에 기록하자.
     compressed_folder, azure_data = tag_main(
-        img_folder, 
-        "C:/Users/mjw35/Documents/2025/Collec/Collec_AI/results/results_csv/temp_azure.csv"
+        img_folder, output_csv
         )
 
     data_dict = {}
@@ -125,3 +124,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     pipeline_main(args.img_folder, args.output_csv)
+
+"""
+python pipeline_main.py \
+--img_folder "/Users/jiyoonjeon/projects/Collec_AI/dataset/AzureTestImgs/debug_classification" \
+--output_csv "/Users/jiyoonjeon/projects/Collec_AI/results/results_csv/jiyoon_1.csv"
+
+"""
