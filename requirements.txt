@@ -8,3 +8,4 @@ pillow-heif
 
 inference 
 inference-cli
+google-cloud-vision
