@@ -31,16 +31,17 @@ def pipeline_main(img_folder: str, output_csv: str):
     # => 우리는 "원본 파일이름"과 매칭해야 편하므로, basename()을 써서 data_dict에 기록하자.
     compressed_folder, azure_data = tag_main(
         img_folder, 
-        "C:/Users/mjw35/Documents/2025/Collec/Collec_AI/results/results_csv/temp_azure.csv"
+        # "C:/Users/mjw35/Documents/2025/25-1/Collec/Collec_AI/results/results_csv/temp_azure.csv"
+        output_csv
         )
 
     data_dict = {}
     for (compressed_path, tags_str, azure_cat) in azure_data:
         # 예: compressed_path = "myImage_compressed.jpg"
-        basename = os.path.basename(compressed_path)
+        # basename = os.path.basename(compressed_path)
 
 
-        data_dict[basename] = {
+        data_dict[compressed_path] = {
             "azure_tags": tags_str,
             "azure_category": azure_cat,
             "roboflow_category": "",
@@ -49,6 +50,11 @@ def pipeline_main(img_folder: str, output_csv: str):
             # 최종 category는 우선 Azure걸로 초기화
             "final_category": azure_cat
         }
+
+        """
+        카테고리가 1~4에 포함되면 끝내기
+
+        """
 
     # roboflow
     rf_results = roboflow_main(compressed_folder)  # dict

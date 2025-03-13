@@ -55,7 +55,7 @@ def roboflow_main(img_folder: str):
         print(f"✅ {img_path} - UI Detect 결과: {ui_classes}, 분류된 카테고리: {category}")
 
         #dictionary형태의 result 반환. img_path: category
-        return results
+    return results
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Roboflow UI Detection")
