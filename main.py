@@ -43,6 +43,7 @@ def annotate_image(image_data: ImageURL):
         # 다운로드한 바이너리 데이터를 PIL 이미지로 변환
         image = Image.open(BytesIO(response.content))
         image = image.copy()
+        image = image.convert('RGB')
     except Exception as e:
         raise HTTPException(status_code=401, detail="유효하지 않은 이미지 파일입니다") from e
 
